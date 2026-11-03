@@ -1,11 +1,8 @@
 # Linux Process Monitor Using /proc
 
-University operating systems project. A Linux-only, read-only process monitor written in **C**.
-
 ## Requirements
 - Linux (Ubuntu recommended)
 - GCC and make (`sudo apt install build-essential`)
-- Optional later: ncurses development library (`sudo apt install libncurses-dev`)
 
 ## Build and run
 ```bash
