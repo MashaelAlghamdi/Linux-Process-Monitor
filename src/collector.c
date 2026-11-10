@@ -1,3 +1,4 @@
+/* collector.c: scans /proc and reads raw process and system files */
 #include "collector.h"
 #include "parser.h"
 #include <ctype.h>
@@ -8,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Only numeric /proc entries are processes. */
 static int numeric_pid(const char *s, pid_t *pid) {
     if (!s || !*s) return 0;
     for (const char *p = s; *p; ++p) if (!isdigit((unsigned char)*p)) return 0;
@@ -18,7 +20,7 @@ static int numeric_pid(const char *s, pid_t *pid) {
     *pid = (pid_t)n;
     return 1;
 }
-
+/* Lists all PIDs in /proc. */
 int get_process_ids(pid_t *pids, size_t capacity) {
     if (!pids && capacity) return -1;
     DIR *dir = opendir("/proc");
@@ -33,6 +35,7 @@ int get_process_ids(pid_t *pids, size_t capacity) {
     return (int)count;
 }
 
+/* Reads a whole /proc file; fails if it is gone or unreadable. */
 static int read_text(const char *path, char *buffer, size_t capacity, size_t *bytes) {
     if (!buffer || capacity < 2) return -1;
     FILE *f = fopen(path, "rb");
@@ -47,6 +50,7 @@ static int read_text(const char *path, char *buffer, size_t capacity, size_t *by
     return 0;
 }
 
+/* Builds one Process record from stat, status and cmdline. */
 int collect_process(pid_t pid, Process *out) {
     if (!out || pid <= 0) return -1;
     memset(out, 0, sizeof(*out));
@@ -65,6 +69,7 @@ int collect_process(pid_t pid, Process *out) {
     return 0;
 }
 
+/* Collects all processes, skipping ones that exit or deny access. */
 int collect_processes(Process *out, size_t capacity) {
     if (!out && capacity) return -1;
     DIR *dir = opendir("/proc");
@@ -81,6 +86,7 @@ int collect_processes(Process *out, size_t capacity) {
     return (int)count;
 }
 
+/* Reads /proc/stat, /proc/meminfo, /proc/uptime and /proc/loadavg. */
 int collect_system_info(SystemInfo *out) {
     if (!out) return -1;
     memset(out, 0, sizeof(*out));

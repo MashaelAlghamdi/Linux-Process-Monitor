@@ -1,3 +1,4 @@
+/* parser.c: converts raw /proc text into Process and SystemInfo fields */
 #include "parser.h"
 #include <ctype.h>
 #include <errno.h>
@@ -6,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Parses /proc/[pid]/stat: PID, name, state, PPID and CPU ticks. */
 int parse_process_stat(const char *line, Process *out) {
     if (!line || !out) return -1;
     const char *open = strchr(line, '(');
@@ -55,6 +57,7 @@ int parse_process_stat(const char *line, Process *out) {
     return 0;
 }
 
+/* Parses UID and VmRSS (rss_kb stays -1 if missing (kernel threads)) */
 int parse_process_status(const char *text, Process *out) {
     if (!text || !out) return -1;
     int got_uid = 0;
@@ -79,6 +82,7 @@ int parse_process_status(const char *text, Process *out) {
     return got_uid ? 0 : -1;
 }
 
+/* Parses total and idle CPU ticks from the "cpu" line. */
 int parse_system_stat(const char *text, SystemInfo *out) {
     if (!text || !out || strncmp(text, "cpu ", 4) != 0) return -1;
     unsigned long long v[10] = {0};
@@ -95,6 +99,7 @@ int parse_system_stat(const char *text, SystemInfo *out) {
     return 0;
 }
 
+/* Parses MemTotal and MemAvailable. */
 int parse_meminfo(const char *text, SystemInfo *out) {
     if (!text || !out) return -1;
     int got_total = 0, got_available = 0;
@@ -114,6 +119,7 @@ int parse_meminfo(const char *text, SystemInfo *out) {
     return got_total && got_available ? 0 : -1;
 }
 
+/* Parses seconds since boot. */
 int parse_uptime(const char *text, SystemInfo *out) {
     if (!text || !out || sscanf(text, "%lf", &out->uptime_seconds) != 1) return -1;
     return out->uptime_seconds >= 0 ? 0 : -1;
@@ -125,6 +131,7 @@ int parse_loadavg(const char *text, SystemInfo *out) {
     return 0;
 }
 
+/* Joins NUL separated arguments with spaces. */
 void parse_cmdline(const char *data, size_t len, char *out, size_t capacity) {
     if (!out || !capacity) return;
     size_t used = 0;
