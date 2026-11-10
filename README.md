@@ -15,3 +15,11 @@ Linux-Process-Monitor/
 ```
 
 All `.c` and `.h` files are empty placeholders for implementation.
+
+## How to use
+1. Clone the repo or download the contents in a zip
+2. `cd` into the directory of this project in your PC
+3. Run the command: `make`
+4. Run the executable by entering the command: `./procmon`
+5. Press `c` to sort by CPU demand or `m` to sort by memory command
+6. Press `q` to exit or press `CTRL+Q`
