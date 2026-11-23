@@ -46,7 +46,8 @@ static int mock_wait_stop(void *ctx, int ms) {
 
 
 int main(void) {
-    int ms = 0;
+    int ms = 0; // for -d
+    int count = 0; // for -n
 
     printf("--- Error helpers ---\n");
     CHECK(err_from_errno(ENOENT) == ERR_NOT_FOUND, "ENOENT -> NOT_FOUND");
@@ -56,6 +57,10 @@ int main(void) {
     CHECK(err_parse_interval("abc", &ms) == ERR_INVALID_INPUT, "\"abc\" rejected");
     CHECK(err_parse_interval("2x", &ms) == ERR_INVALID_INPUT, "\"2x\" rejected");
     CHECK(err_parse_interval("0", &ms) == ERR_INVALID_INPUT, "\"0\" rejected");
+    CHECK(err_parse_refresh_count("5", &count) == ERR_OK && count == 5, "-n \"5\" -> 5");
+    CHECK(err_parse_refresh_count("3abc", &count) == ERR_INVALID_INPUT, "-n \"3abc\" rejected");
+    CHECK(err_parse_refresh_count("abc", &count) == ERR_INVALID_INPUT, "-n \"abc\" rejected");
+    CHECK(err_parse_refresh_count("0", &count) == ERR_INVALID_INPUT, "-n \"0\" rejected");
     err_report(ERR_PERMISSION, "example message");   /* just to see what it looks like */
 
     /* reading a process that already ended should give NOT_FOUND, not crash */

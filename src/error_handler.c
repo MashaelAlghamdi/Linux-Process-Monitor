@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 ErrorCode err_from_errno(int errnum) {
     switch (errnum) {
@@ -48,6 +49,22 @@ ErrorCode err_parse_interval(const char *text, int *out_ms) {
     *out_ms = (int)(seconds * 1000.0 + 0.5);
     return ERR_OK;
 }
+
+ErrorCode err_parse_refresh_count(const char *text, int *out_count) {
+    if (text == NULL || out_count == NULL) return ERR_INVALID_INPUT;
+
+    char *end = NULL;
+    errno = 0;
+    long count_long = strtol(text, &end, 10);
+
+    /* if end didn't move, there was no number at all ("abc").
+     * if anything is left after the number, it's junk*/
+    if (errno != 0 || end == text || *end != '\0') return ERR_INVALID_INPUT;
+    if (!(count_long >= 1 && count_long <= INT_MAX)) return ERR_INVALID_INPUT;
+    *out_count = (int)(count_long);
+    return ERR_OK;
+}
+
 
 
 

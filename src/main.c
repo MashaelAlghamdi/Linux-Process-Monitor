@@ -30,6 +30,9 @@ typedef struct {
     SystemSummary summary;
     UiState       ui;
     int           plain;             /* 1 if we're in -b mode */
+    int           failed;            /* if a problem occured and procmon needs to close */
+    ErrorCode     err_type;          /* Type of error */
+    char          *err_ctx;          /* What happened? context of error */
 } App;
 
 
@@ -73,12 +76,17 @@ static int refresh_tick(void *ctx) {
 
     errno = 0;
     if (collect_system_info(&a->cur_sys) != 0) {
-        err_report(err_from_errno(errno), "reading system information");
-        return 1;   /* can't continue without data */
+        a->failed = 1;
+        a->err_type = err_from_errno(errno);
+        a->err_ctx = "reading /proc/stat, /proc/meminfo, /proc/uptime or /proc/loadavg";
+        return 1;
     }
+    errno = 0;
     a->cur_n = collect_processes(a->cur, MAX_PROCS);  /* already skips processes that ended */
     if (a->cur_n < 0) {
-        err_report(ERR_IO, "scanning /proc");
+        a->failed = 1;
+        a->err_type = err_from_errno(errno);
+        a->err_ctx = "opening the /proc folder";
         return 1;
     }
 
@@ -139,9 +147,8 @@ int main(int argc, char **argv) {
                 return 2;
             }
         } else if (opt == 'n') {
-            count = atoi(optarg);
-            if (count <= 0) {
-                err_report(ERR_INVALID_INPUT, "-n needs a positive number");
+            if (err_parse_refresh_count(optarg, &count) != ERR_OK) {
+                err_report(ERR_INVALID_INPUT, "-n needs to be an integer greater >= 1");
                 return 2;
             }
         } else if (opt == 'b') {
@@ -171,6 +178,11 @@ int main(int argc, char **argv) {
     free(app.cur);
     free(app.prev);
     free(app.rows);
+
+    if (app.failed) {
+        err_report(app.err_type, app.err_ctx);
+        return 1;
+    }
 
     printf("procmon: exited cleanly after %d refreshes\n", done);
     return 0;

@@ -23,4 +23,6 @@ void err_report(ErrorCode code, const char *context);
  * only 0.1 to 60 is accepted, so "abc", "0" or "2x" give ERR_INVALID_INPUT */
 ErrorCode err_parse_interval(const char *text, int *out_ms);
 
+/* same as err_parse_interval, but for -n, which is the number of refreshes before procmon exits by itself */
+ErrorCode err_parse_refresh_count(const char *text, int *out_count);
 #endif
