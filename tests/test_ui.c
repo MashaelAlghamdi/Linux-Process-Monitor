@@ -173,7 +173,7 @@ static char *render_to_string(UiState *s, SystemSummary *sum, int rows_h, int co
 }
 
 static void render_tests(void) {
-    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1 };
+    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1, 0, 0 };
     UiState s;
     ui_state_init(&s);
 
@@ -209,7 +209,7 @@ static void render_tests(void) {
     assert(s.scroll <= 8);
     free(out);
 
-    SystemSummary none = { NULL, 0, 0, 0, 0 };
+    SystemSummary none = { NULL, 0, 0, 0, 0, 0, 0 };
     out = render_to_string(&s, &none, 24, 100);
     assert(strstr(out, "Uptime: N/A"));
     free(out);
@@ -220,7 +220,7 @@ static void render_tests(void) {
 }
 
 static void print_frame(int use_ansi, int h, int w) {
-    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1 };
+    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1, 0, 0 };
     UiState s;
     ui_state_init(&s);
     ui_render(stdout, &s, &sum, rows, N, h, w, use_ansi);
@@ -228,7 +228,7 @@ static void print_frame(int use_ansi, int h, int w) {
 }
 
 static void interactive(void) {
-    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1 };
+    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1, 0, 0 };
     UiState s;
     ui_state_init(&s);
     if (ui_init() != 0) { fputs("stdin is not a terminal\n", stderr); return; }

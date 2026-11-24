@@ -33,6 +33,7 @@ typedef struct {
     int           failed;            /* if a problem occured and procmon needs to close */
     ErrorCode     err_type;          /* Type of error */
     char          *err_ctx;          /* What happened? context of error */
+    int           list_full;         /* 1 if the list was full at least once */
 } App;
 
 
@@ -50,6 +51,9 @@ static void draw(App *a) {
         /* make it tall enough to print every process */
         ui_render(stdout, &a->ui, &a->summary, a->rows, (size_t)a->cur_n,
                   a->cur_n + 8, 120, 0);
+        if (a->cur_n == MAX_PROCS) {
+            printf("\nnote: the list is full, only the first %d programs are shown", MAX_PROCS);
+        }
         printf("\n");
     } else {
         int rows, cols;
@@ -103,6 +107,8 @@ static int refresh_tick(void *ctx) {
     }
 
     a->summary.info = &a->cur_sys;
+    a->summary.list_full = (a->cur_n == MAX_PROCS);
+    a->summary.total_running = a->summary.list_full ? count_process_ids() : 0;
     a->summary.cpu_valid = a->have_prev &&
         calculate_system_cpu(&a->prev_sys, &a->cur_sys, &a->summary.cpu_percent) == 0;
     a->summary.mem_valid =

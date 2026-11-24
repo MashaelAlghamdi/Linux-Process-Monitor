@@ -47,6 +47,8 @@ typedef struct {
     const SystemInfo *info;
     double cpu_percent;  int cpu_valid;
     double mem_percent;  int mem_valid;
+    int list_full; // 1 if limit of list is reached
+    int total_running; // total running processes
 } SystemSummary;
 
 void ui_state_init(UiState *s);

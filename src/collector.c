@@ -35,6 +35,18 @@ int get_process_ids(pid_t *pids, size_t capacity) {
     return (int)count;
 }
 
+int count_process_ids() {
+    DIR *dir = opendir("/proc");
+    if (!dir) return -1;
+    struct dirent *entry;
+    int count = 0;
+    pid_t pid;
+    while ((entry = readdir(dir)) != NULL)
+        if (numeric_pid(entry->d_name, &pid)) count++;
+    closedir(dir);
+    return count;
+}
+
 /* Reads a whole /proc file; fails if it is gone or unreadable. */
 static int read_text(const char *path, char *buffer, size_t capacity, size_t *bytes) {
     if (!buffer || capacity < 2) return -1;

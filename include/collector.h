@@ -8,6 +8,8 @@ int get_process_ids(pid_t *pids, size_t capacity);
 int collect_process(pid_t pid, Process *out);
 /* Return number collected, or -1 if /proc cannot be scanned */
 int collect_processes(Process *out, size_t capacity);
+/* Return how many processes exist right now (not capped), or -1 if /proc cannot be scanned */
+int count_process_ids();
 /* Return 0 on success, or -1 if required system information is unavailable */
 int collect_system_info(SystemInfo *out);
 #endif

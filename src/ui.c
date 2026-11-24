@@ -181,11 +181,21 @@ int ui_render(FILE *out, UiState *s, const SystemSummary *sys,
     end_line(out, ansi, 0);
 
     /* print the status of sort/filter */
-    fprintf(out, "Sort: %s %s | Filter: name=%s user=%s state=%c | Showing %d of %zu",
+    fprintf(out, "Sort: %s %s | Filter: name=%s user=%s state=%c | Showing %d of ",
             sort_label(s->sort_key), s->descending ? "desc" : "asc",
             s->filter.name[0] ? s->filter.name : "-",
             s->filter.user[0] ? s->filter.user : "-",
-            s->filter.state ? s->filter.state : '-', shown, n);
+            s->filter.state ? s->filter.state : '-', shown);
+    if (sys && sys->list_full && sys->total_running > 0) {
+        fprintf(out, "about %d (list full)", sys->total_running);
+    }
+    else if (sys && sys->list_full) {
+        fprintf(out, "%zu (list full)", n);
+    }
+    else {
+        fprintf(out, "%zu", n);
+    }
+        
     end_line(out, ansi, 0);
 
     /* add the column header */
