@@ -88,6 +88,7 @@ int ui_handle_key(UiState *s, int key) {
     case 'u': open_prompt(s, UI_PROMPT_USER);  return 1;
     case 's': open_prompt(s, UI_PROMPT_STATE); return 1;
     case 'x': filter_init(&s->filter); reset_view(s); return 1;
+    case 'f': s->show_cmdline = !s->show_cmdline; return 1;
     case UI_KEY_UP:   if (s->scroll) --s->scroll; return 1;
     case UI_KEY_DOWN: ++s->scroll; return 1;     /* clamped at render time */
     case UI_KEY_PGUP: s->scroll = s->scroll > 10 ? s->scroll - 10 : 0; return 1;
