@@ -40,6 +40,7 @@ typedef struct {
     size_t        prompt_len;
     size_t        scroll;
     int           quit;
+    int           show_cmdline;
 } UiState;
 
 /* System-wide values for the summary */
