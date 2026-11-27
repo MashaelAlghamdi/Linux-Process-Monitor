@@ -252,7 +252,7 @@ int ui_render(FILE *out, UiState *s, const SystemSummary *sys,
         fprintf(out, "Filter %s: %s_  [Enter=apply Esc=cancel]", what, s->prompt_buf);
     } else {
         fprintf(out, "%.*s", w > 1 ? w - 1 : 1,
-                "q quit  p/c/m sort PID/CPU/MEM  r reverse  n/u/s filter name/user/state  x clear  Up/Down scroll");
+                "q quit  p/c/m sort  r reverse  n/u/s filter  x clear  f cmdline  Up/Down scroll");
     }
     end_line(out, ansi, 1);
     if (ansi) fputs("\033[J", out);
