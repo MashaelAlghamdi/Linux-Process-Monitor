@@ -56,4 +56,8 @@ dkms.conf
 
 # outputs
 /procmon
-/test_system
+/test_systemprocmon
+test_collector
+test_metrics
+test_system
+test_ui
