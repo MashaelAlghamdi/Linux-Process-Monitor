@@ -58,6 +58,7 @@ void ui_state_init(UiState *s);
  * Perform a single key press. Returns 1 if the screen needs to be redraw and 0.
  * Standard mode: q quits | p/c/m sorts by PID/CPU/MEM percent | r reverses |
  *   n/u/s enters name/user/state filtering prompt | x clears all filters |
+ *   f switches between the process name and a full command line in the NAME column |
  *   Up/Down/PgUp/PgDn/Home/End scrolls.
  * Prompt mode: text sets the filter; Enter commits, Escape cancels,
  *   Backspace erases (Enter with no text clears this filter).
@@ -67,7 +68,7 @@ int ui_handle_key(UiState *s, int key);
 /*
  * Render a complete frame into `out`. rows/n is the unfiltered process listing.
  * term_rows/term_cols provide the dimensions of the frame; use_ansi controls cursor
- * movement, highlighting, and line clearing (0 provides non-color text output for tests/logging).
+ * movement, highlighting, and line clearing (0 provides non-colour text output for tests/logging).
  * Returns 0 if no error, or -1 for errors in arguments or memory allocation.
  */
 int ui_render(FILE *out, UiState *s, const SystemSummary *sys,
