@@ -30,7 +30,6 @@ static void set(int i, pid_t pid, pid_t ppid, const char *name, char state,
 }
 
 static void build_mock(void) {
-    /*  idx pid  ppid name                  st uid   cpu   ok  mem   ok */
     set(0,   1,    0, "systemd",             'S',    0,  0.0, 1,  0.3, 1);
     set(1, 412,    1, "sshd",                'S',    0,  0.1, 1,  0.2, 1);
     set(2, 980,    1, "bash",                'S', 1000,  0.0, 1,  0.1, 1);
@@ -39,6 +38,11 @@ static void build_mock(void) {
     set(5, 2002,   2, "kworker/0:1",         'I',    0,  0.0, 0,  0.0, 0);
     set(6, 3100, 980, "Firefox-Web",         'D', 1000, 17.3, 1,  9.9, 1);
     set(7, 4000,   1, "zombie\nproc",        'Z', 1000,  0.0, 0,  0.0, 0);
+    /* command lines */
+    snprintf(proc[0].cmdline, sizeof(proc[0].cmdline), "sbin/init splash");
+    snprintf(proc[3].cmdline, sizeof(proc[3].cmdline), "usr/bin/my-test --flag \"a b\"");
+    snprintf(proc[4].cmdline, sizeof(proc[4].cmdline), 
+      "usr/lib/firefox/firefox --new-window https://example.org");
     memset(&sys_info, 0, sizeof(sys_info));
     sys_info.memory_total_kb = 8u * 1024 * 1024;
     sys_info.memory_available_kb = 3u * 1024 * 1024;
@@ -219,6 +223,46 @@ static void render_tests(void) {
     puts("Rendering tests passed.");
 }
 
+static void cmdline_tests(void) {
+    SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1, 0, 0 };
+    UiState s;
+    ui_state_init(&s);
+    assert(!s.show_cmdline);
+
+    char *out = render_to_string(&s, &sum, 24, 100);
+    assert(strstr(out, "NAME") && !strstr(out, "COMMAND"));
+    assert(!strstr(out, "--new-window"));
+    assert(strstr(out, "f cmdline"));
+    free(out);
+
+    assert(ui_handle_key(&s, 'f') == 1 && s.show_cmdline);
+    out = render_to_string(&s, &sum, 24, 100);
+    assert(strstr(out, "COMMAND") && !strstr(out, "NAME"));
+    assert(strstr(out, "/usr/lib/firefox/firefox --new-window https://example.org"));
+    assert(strstr(out, "/usr/bin/my-test --flag \"a b\""));
+    assert(strstr(out, "[kworker/0:1]"));
+    assert(strstr(out, "[Firefox-Web]"));
+    free(out);
+
+    out = render_to_string(&s, &sum, 24, 60);
+    assert(strstr(out, "/usr/lib/firefox/") && !strstr(out, "firefox/firefox") && !strstr(out, "example.org"));
+    free(out);
+
+    strcpy(s.filter.name, "fire");
+    out = render_to_string(&s, &sum, 24, 100);
+    assert(strstr(out, "Showing 2 of 8") && strstr(out, "--new-window"));
+    free(out);
+    assert(strcmp(procs[4].cmdline, "/usr/lib/firefox/firefox --new-window https://example.org") == 0);
+
+    ui_handle_key(&s, 'n');
+    ui_handle_key(&s, 'f');
+    assert(s.show_cmdline && strcmp(s.prompt_buf, "f") == 0);
+    ui_handle_key(&s, UI_KEY_ESC);
+
+    assert(ui_handle_key(&s, 'f') == 1 && !s.show_cmdline);
+    puts("Command-line view tests passed.");
+}
+
 static void print_frame(int use_ansi, int h, int w) {
     SystemSummary sum = { &sys_info, 12.34, 1, 62.5, 1, 0, 0 };
     UiState s;
@@ -254,6 +298,7 @@ int main(int argc, char **argv) {
     filter_tests();
     key_tests();
     render_tests();
+    cmdline_tests();
     puts("\nSample frame (mock data, sorted by CPU% descending):\n");
     print_frame(0, 20, 100);
     puts("\nTask 3 tests passed.");
