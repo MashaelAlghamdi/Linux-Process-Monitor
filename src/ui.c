@@ -208,7 +208,8 @@ int ui_render(FILE *out, UiState *s, const SystemSummary *sys,
     snprintf(hc, sizeof(hc), "CPU%%%c", ind_cpu);
     snprintf(hm, sizeof(hm), "MEM%%%c", ind_mem);
     if (ansi) fputs("\033[7m", out);
-    fprintf(out, "%7s %7s %-10s %c %6s %6s %s", hp, "PPID", "USER", 'S', hc, hm, "NAME");
+    fprintf(out, "%7s %7s %-10s %c %6s %6s %s", hp, "PPID", "USER", 'S', hc, hm, 
+        s->show_cmdline ? "COMMAND" : "NAME");
     if (ansi) fputs("\033[0m", out);
     end_line(out, ansi, 0);
 
