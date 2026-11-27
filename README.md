@@ -4,7 +4,7 @@ A Linux process monitor written in C that reads process and system information d
 
 procmon is written in C using plain terminal escape codes and `termios`.
 
-ICS 433 Lab Project, Phase 2. Team: Afrah Alsubhi, Mashael Alghamdi, Fatemah Almarhoon, Alshayma Alarfaj.
+ICS 433 Lab Project. Team: Afrah Alsubhi, Mashael Alghamdi, Fatemah Almarhoon, Alshayma Alarfaj.
 
 ## Project Structure
 
