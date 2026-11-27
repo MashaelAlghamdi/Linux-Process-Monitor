@@ -227,7 +227,15 @@ int ui_render(FILE *out, UiState *s, const SystemSummary *sys,
             fprintf(out, "%7ld %7ld %-10.10s %c %6s %6s ",
                     (long)p->pid, (long)p->ppid, user,
                     p->state >= 32 && p->state < 127 ? p->state : '?', cpu, mem);
-            put_clean(out, p->name, name_w);
+            if (s->show_cmdline && p->cmdline[0]) {
+                put_clean(out, p->cmdline, name_w);
+            } else if (s->show_cmdline) {
+                fputc('[', out);
+                put_clean(out, p->name, name_w > 2 ? name_w - 2 : 1);
+                fputc(']', out);
+            } else {
+                put_clean(out, p->name, name_w);
+            }
             end_line(out, ansi, 0);
         } else if (shown == 0 && i == 0) {
             fputs("(no matching processes)", out);
